@@ -143,7 +143,7 @@ if __name__ == "__main__":
     # 무한루프로 print 출력 후 3초 sleep
     try:
         while True:
-            print("dir_watcher is running...")
+            print(f"conn_str: {conn_str}")
             time.sleep(3)
     except KeyboardInterrupt:
         print("Stopped")
