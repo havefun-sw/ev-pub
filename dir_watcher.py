@@ -138,4 +138,13 @@ def start_watching():
         print("Stopped")
 
 if __name__ == "__main__":
-    start_watching()
+    #start_watching()
+    
+    # 무한루프로 print 출력 후 3초 sleep
+    try:
+        while True:
+            print("dir_watcher is running...")
+            time.sleep(3)
+    except KeyboardInterrupt:
+        print("Stopped")
+    
