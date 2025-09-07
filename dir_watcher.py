@@ -121,7 +121,7 @@ class ProtocolFileHandler(FileSystemEventHandler):
             self.process_file(event.src_path, False)
 
 def start_watching():
-    watch_directory = r"C:\dev\ev\watch_insert\test_data"
+    watch_directory = r"C:\Users\home\Desktop\Protocol Data"
     print(f"Watching: {watch_directory}")
     
     handler = ProtocolFileHandler()
