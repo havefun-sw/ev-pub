@@ -120,9 +120,76 @@ class ProtocolFileHandler(FileSystemEventHandler):
             time.sleep(0.1)
             self.process_file(event.src_path, False)
 
+def upload_existing_files(file_path):
+    """
+    처음 로딩될 때 기존 파일들을 업로드하는 함수
+    감시 디렉토리 내의 모든 기존 파일을 스캔하여 처리
+    """
+    process_directory_recursively(file_path)
+    pass
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def read_and_validate_file(filepath):
+    with open(filepath, encoding='euc-kr') as f:  # 인코딩을 euc-kr로 변경
+        lines = f.readlines()
+
+    # 8행이 Time 문자열인지 확인 (인덱스 7)
+    if len(lines) < 9 or not lines[7].strip().startswith("Time"):
+        raise ValueError("8행이 'Time' 문자열로 시작하지 않습니다.")
+
+    # 9행부터 마지막행까지 유효성 검사 및 데이터 추출
+    data_lines = []
+    for line in lines[8:]:
+        stripped = line.strip()
+        if not stripped:
+            continue  # 빈 행은 건너뜀
+        cols = stripped.split('\t')
+        if len(cols) < 4:
+            continue  # 4개 미만 열은 건너뜀
+        if not is_number(cols[0]):
+            continue  # 첫 번째 값이 숫자가 아니면 건너뜀
+        data_lines.append(stripped)
+
+    return data_lines
+
+def process_single_file(full_path, file_name, file_path):
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"File not found: {full_path}")
+
+    data_lines = read_and_validate_file(full_path)
+    
+    # Create ProtocolFileHandler instance to access insert_proto_data_lines method
+    handler = ProtocolFileHandler()
+    try:
+        handler.insert_proto_data_lines(data_lines, file_name, file_path)
+        print(f"Inserted {len(data_lines)} lines for {file_name}")
+    finally:
+        # Ensure connection is closed
+        if hasattr(handler, 'conn'):
+            handler.conn.close()
+
+def process_directory_recursively(root_dir):
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            full_path = os.path.join(dirpath, filename)
+            try:
+                print(f"Processing file: {full_path}")
+                process_single_file(full_path, filename, dirpath)
+            except Exception as e:
+                print(f"Error processing {full_path}: {e}")
+
 def start_watching():
     watch_directory = r"C:\Users\home\Desktop\Protocol Data"
     print(f"Watching: {watch_directory}")
+    
+    # 처음 로딩 시 기존 파일들 업로드
+    upload_existing_files(watch_directory)
     
     handler = ProtocolFileHandler()
     observer = Observer()
