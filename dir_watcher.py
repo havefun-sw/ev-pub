@@ -185,7 +185,7 @@ def process_directory_recursively(root_dir):
                 print(f"Error processing {full_path}: {e}")
 
 def start_watching():
-    watch_directory = r"C:\Users\User\Desktop\Protocol Data"
+    watch_directory = r"C:\Logging Data"
     print(f"Watching: {watch_directory}")
     
     # 처음 로딩 시 기존 파일들 업로드
